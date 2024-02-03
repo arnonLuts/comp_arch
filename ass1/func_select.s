@@ -73,6 +73,40 @@ run_func:
 
 .choice_33:
 
+    # Call swapCase on pstr1
+    movq -16(%rbp), %rdi
+    xorq %rax, %rax
+    call swapCase
+    # Get the length of pstr1
+    movq -16(%rbp), %rdi      
+    xorq %rax, %rax
+    call pstrlen
+    movq %rax, %rsi
+
+    # Print the result for pstr1
+    movq $choice_33_fmt, %rdi
+    movq -16(%rbp), %rdx
+    xorq %rax, %rax
+    call printf
+
+    # Call swapCase on pstr2
+    movq -24(%rbp), %rdi
+    xorq %rax, %rax
+    call swapCase
+    # Get the length of pstr2
+    movq -24(%rbp), %rdi      
+    xorq %rax, %rax
+    call pstrlen
+    movq %rax, %rsi
+
+    # Print the result for pstr2
+    movq $choice_33_fmt, %rdi
+    movq -24(%rbp), %rdx
+    xorq %rax, %rax
+    call printf    
+
+
+
     jmp .exit
 
 .choice_34:
