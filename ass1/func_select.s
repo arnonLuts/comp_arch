@@ -6,6 +6,9 @@ choice_33_fmt: .string "length: %d, string: %s\n "
 choice_34_fmt: .string "length: %d, string: %s\n "
 default_fmt: .string "invalid option!\n"
 debug: .string "choice is %d\n"
+scanf_fmt: .string "%d %d"
+printf_fmt: .string "Debug: %d, %d\n"
+
 
 .section .text
 .global run_func
@@ -27,15 +30,6 @@ run_func:
     
 
 
-    // //debug
-    // movq -16(%rbp), %rdi      
-    // movb 0(%rdi), %al         
-    // movq %rax, %rsi           
-    // // movq -16(%rbp), %rsi      
-    // movq $my_string_fmt, %rdi 
-    // xorq %rax, %rax           
-    // call printf
-
     movq $31, %rdi
     cmp -8(%rbp), %rdi
     je .choice_31
@@ -47,11 +41,8 @@ run_func:
     movq $34, %rdi
     cmp -8(%rbp), %rdi
     je .choice_34
-    # Else (didn't match the functions) print invalid and exit.
-    movq $default_fmt, %rdi 
-    xorq %rax, %rax           
-    call printf
-    jmp .exit
+    # Else (didn't match the functions) invalid format -  exit.
+    jmp .default
 
 .choice_31:
     # Call pstrlen on pstr1
@@ -111,8 +102,92 @@ run_func:
 
 .choice_34:
 
+    # Get the two indexes
+    movq $scanf_fmt, %rdi
+    leaq -32(%rbp), %rsi
+    leaq -8(%rbp), %rdx
+    xorq %rax, %rax
+    call scanf
+
+    # Call pstrlen on pstr1
+    movq -16(%rbp), %rdi      
+    xorq %rax, %rax
+    call pstrlen
+    movq %rax, %r8
+    # Call pstrlen on pstr2
+    movq -24(%rbp), %rdi      
+    xorq %rax, %rax
+    call pstrlen
+    movq %rax, %r9
+
+    # Check for edge cases: j<i, iVj<0, iVj> string size
+    movq -16(%rbp), %rsi
+    movq -24(%rbp), %rdi
+    movq -32(%rbp), %rdx
+    movq -8(%rbp), %rcx
+
+    cmp $0, %rdx 
+    jl .default_34
+    cmp %rdx, %rcx 
+    jl .default_34
+    cmp %r8, %rdx
+    jge .default_34
+    cmp %r8, %rcx
+    jge .default_34
+    cmp %r9, %rdx
+    jge .default_34
+    cmp %r9, %rcx
+    jge .default_34
+
+    xorq %rax, %rax
+    call pstrijcpy
+
+    # Print the result for pstr1
+    movq $choice_33_fmt, %rdi
+    movq -16(%rbp), %rdx
+    movq %r8, %rsi
+    xorq %rax, %rax
+    call printf    
+
+    # Print the result for pstr2
+    movq $choice_33_fmt, %rdi
+    movq -24(%rbp), %rdx
+    movq %r8, %rsi
+    xorq %rax, %rax
+    call printf  
+
+
+    movq -24(%rbp), %rdi
+
+
+
     jmp .exit
 
+.default_34:
+    movq $default_fmt, %rdi 
+    xorq %rax, %rax           
+    call printf
+        # Print the result for pstr1
+    movq $choice_33_fmt, %rdi
+    movq -16(%rbp), %rdx
+    movq %r8, %rsi
+    xorq %rax, %rax
+    call printf    
+
+    # Print the result for pstr2
+    movq $choice_33_fmt, %rdi
+    movq -24(%rbp), %rdx
+    movq %r8, %rsi
+    xorq %rax, %rax
+    call printf 
+    
+    jmp .exit
+
+.default:
+    movq $default_fmt, %rdi 
+    xorq %rax, %rax           
+    call printf
+    jmp .exit
 
 .exit:
     movq %rbp, %rsp
