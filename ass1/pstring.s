@@ -13,45 +13,43 @@ swapCase:
     # The first byte is the unsigned char
     incq %rdi
 
-.loop:
+.scloop:
     # Read byte from string
     movb (%rdi), %al
 
     # If we're at the end of the string, exit
     cmpb $0x0, %al
-    je .done
+    je .sc_done
 
     # If the byte is 'a', change it to 'B'
     cmpb $'Z', %al
-    jle .caps_or_not
+    jle .sc_caps_or_not
 
     cmpb $'a', %al
-    jge .lower_or_not
+    jge .sc_lower_or_not
 
-    jmp .next
+    jmp .sc_next
 
 
-.caps_or_not:
+.sc_caps_or_not:
     cmpb $'A',%al
-    jl .next
+    jl .sc_next
     addb $32, %al
     movb %al, (%rdi)
-    jmp .next
+    jmp .sc_next
 
-.lower_or_not:
+.sc_lower_or_not:
     cmpb $'z',%al
-    jg .next
+    jg .sc_next
     subb $32, %al
     movb %al, (%rdi)
-    jmp .next
-.next:
-    # Increment the pointer, and continue to next iteration
+    jmp .sc_next
+.sc_next:
+    # Increment the pointer, and continue to sc_next iteration
     incq %rdi
-    jmp .loop
+    jmp .scloop
 
-.done:
-
-
+.sc_done:
     ret
 
 
@@ -59,5 +57,32 @@ swapCase:
 .global pstrijcpy
 .type pstrijcpy, @function
 pstrijcpy:
+    # The first byte is the unsigned char
+    incq %rdi
+    incq %rsi
+    # Start from the i-th index, we will subtract i from j and use rcx as the counter
+    addq %rdx, %rdi
+    addq %rdx, %rsi
+    subq %rdx, %rcx
+    
+.ij_loop:
+    # Read byte from string
+    movb (%rdi), %al
 
+    # Swap the characters in the strings
+    movb %al, (%rsi)
+
+    # If we're at j, exit
+    cmp $0, %rcx
+    je .ij_done
+
+.ij_next:
+    # Increment the pointer, and continue to next iteration
+    incq %rdi
+    incq %rsi
+    decq %rcx
+    jmp .ij_loop
+
+.ij_done:
+    ret
 
