@@ -20,9 +20,9 @@ scanf_fmt:
 guess_fmt:
     .string "What is your guess? "
 incorrect_fmt:
-    .string "Incorrect. \n"
+    .string "Incorrect.\n"
 lost_fmt:
-    .string "Game over, you lost :(. The Correct answer was %d\n"
+    .string "Game over, you lost :(. The correct answer was %d\n"
 won_fmt:
     .string "Congratz! You won! \n"
 
@@ -64,7 +64,7 @@ main:
 
 
     # Loop for the guessing game (up to 5 attempts)
-    movq $5, $index_i  # Set loop counter to 5
+    movq $5, index_i  # Set loop counter to 5
 
 .loop:
     # Print the prompt
@@ -89,13 +89,13 @@ main:
     call printf
 
     # Continue the loop if we still have remaining guesses
-    decq $index_i
+    decq index_i
     jnz .loop 
 
 .lost:
     # Print the result if the player loses
     movq $lost_fmt, %rdi
-    movq $rand_num, %rsi
+    movq rand_num, %rsi
     xorq %rax, %rax
     call printf
 
