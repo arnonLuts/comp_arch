@@ -2,12 +2,11 @@
 
 .section .rodata
 choice_31_fmt: .string "first pstring length: %d, second pstring length: %d\n"
-choice_33_fmt: .string "length: %d, string: %s\n "
-choice_34_fmt: .string "length: %d, string: %s\n "
+choice_33_fmt: .string "length: %d, string: %s\n"
+choice_34_fmt: .string "length: %d, string: %s\n"
 default_fmt: .string "invalid option!\n"
 debug: .string "choice is %d\n"
 scanf_fmt: .string "%d %d"
-printf_fmt: .string "Debug: %d, %d\n"
 
 
 .section .text
@@ -121,8 +120,8 @@ run_func:
     movq %rax, %r9
 
     # Check for edge cases: j<i, iVj<0, iVj> string size
-    movq -16(%rbp), %rsi
-    movq -24(%rbp), %rdi
+    movq -16(%rbp), %rdi
+    movq -24(%rbp), %rsi
     movq -32(%rbp), %rdx
     movq -8(%rbp), %rcx
 
@@ -142,6 +141,51 @@ run_func:
     xorq %rax, %rax
     call pstrijcpy
 
+    # Call pstrlen on pstr1
+    movq -16(%rbp), %rdi      
+    xorq %rax, %rax
+    call pstrlen
+    movq %rax, %r8
+
+    # Print the result for pstr1
+    movq $choice_33_fmt, %rdi
+    movq -16(%rbp), %rdx
+    movq %r8, %rsi
+    xorq %rax, %rax
+    call printf    
+
+    # Call pstrlen on pstr2
+    movq -24(%rbp), %rdi      
+    xorq %rax, %rax
+    call pstrlen
+    movq %rax, %r9
+
+    # Print the result for pstr2
+    movq $choice_33_fmt, %rdi
+    movq -24(%rbp), %rdx
+    movq %r9, %rsi
+    xorq %rax, %rax
+    call printf  
+
+
+    jmp .exit
+
+.default_34:
+    # Call pstrlen on pstr1
+    movq -16(%rbp), %rdi      
+    xorq %rax, %rax
+    call pstrlen
+    movq %rax, %r8
+    # Call pstrlen on pstr2
+    movq -24(%rbp), %rdi      
+    xorq %rax, %rax
+    call pstrlen
+    movq %rax, %r9
+
+    movq $default_fmt, %rdi 
+    xorq %rax, %rax           
+    call printf
+
     # Print the result for pstr1
     movq $choice_33_fmt, %rdi
     movq -16(%rbp), %rdx
@@ -152,32 +196,7 @@ run_func:
     # Print the result for pstr2
     movq $choice_33_fmt, %rdi
     movq -24(%rbp), %rdx
-    movq %r8, %rsi
-    xorq %rax, %rax
-    call printf  
-
-
-    movq -24(%rbp), %rdi
-
-
-
-    jmp .exit
-
-.default_34:
-    movq $default_fmt, %rdi 
-    xorq %rax, %rax           
-    call printf
-        # Print the result for pstr1
-    movq $choice_33_fmt, %rdi
-    movq -16(%rbp), %rdx
-    movq %r8, %rsi
-    xorq %rax, %rax
-    call printf    
-
-    # Print the result for pstr2
-    movq $choice_33_fmt, %rdi
-    movq -24(%rbp), %rdx
-    movq %r8, %rsi
+    movq %r9, %rsi
     xorq %rax, %rax
     call printf 
     
